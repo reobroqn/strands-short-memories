@@ -129,9 +129,9 @@ class AgentManager:
             """Store information in long-term memory."""
             try:
                 mem0_memory(user_id=user_id, operation="store", content=content)
-                return f"✅ Stored: {content[:50]}..."
+                return f"[STORED] {content[:50]}..."
             except Exception as e:
-                return f"❌ Storage failed: {e!s}"
+                return f"[ERROR] Storage failed: {e!s}"
 
         @tool
         def mem0_retrieve_memories(query: str, max_results: int = 3) -> str:
@@ -145,11 +145,11 @@ class AgentManager:
                     memory_text = "\n".join(
                         [f"- {mem.get('memory', '')[:100]}..." for mem in memories]
                     )
-                    return f"📝 Relevant memories:\n{memory_text}"
+                    return f"[MEMORY] Relevant memories:\n{memory_text}"
                 else:
-                    return "📝 No relevant memories found."
+                    return "[MEMORY] No relevant memories found."
             except Exception as e:
-                return f"❌ Retrieval failed: {e!s}"
+                return f"[ERROR] Retrieval failed: {e!s}"
 
         @tool
         def mem0_list_memories() -> str:
@@ -164,11 +164,11 @@ class AgentManager:
                             for mem in memories[:10]  # Limit to 10 most recent
                         ]
                     )
-                    return f"📋 Recent memories:\n{memory_list}"
+                    return f"[LIST] Recent memories:\n{memory_list}"
                 else:
-                    return "📋 No memories stored yet."
+                    return "[LIST] No memories stored yet."
             except Exception as e:
-                return f"❌ Listing failed: {e!s}"
+                return f"[ERROR] Listing failed: {e!s}"
 
         return Agent(
             model=self.gemini_model,
@@ -214,13 +214,13 @@ class AgentManager:
                 wants = monthly_income * 0.30
                 savings = monthly_income * 0.20
 
-                return f"""💰 Budget Breakdown for ${monthly_income:,.2f}:
-                🏠 Needs (50%): ${needs:,.2f}
-                🎯 Wants (30%): ${wants:,.2f}
-                💎 Savings (20%): ${savings:,.2f}
+                return f"""[BUDGET] Budget Breakdown for ${monthly_income:,.2f}:
+                [HOME] Needs (50%): ${needs:,.2f}
+                [TARGET] Wants (30%): ${wants:,.2f}
+                [DIAMOND] Savings (20%): ${savings:,.2f}
                 Total: ${monthly_income:,.2f}"""
             except Exception as e:
-                return f"❌ Budget calculation failed: {e!s}"
+                return f"[ERROR] Budget calculation failed: {e!s}"
 
         return calculate_budget
 
@@ -232,11 +232,9 @@ class AgentManager:
             """Prepare financial data for client-side chart visualization."""
             try:
                 labels = list(data.keys())
-                return (
-                    f"✅ Chart data prepared: {title}. Categories: {', '.join(labels)}"
-                )
+                return f"[CHART] Chart data prepared: {title}. Categories: {', '.join(labels)}"
             except Exception as e:
-                return f"❌ Chart preparation failed: {e!s}"
+                return f"[ERROR] Chart preparation failed: {e!s}"
 
         return create_financial_chart
 
@@ -260,7 +258,7 @@ class AgentManager:
             current_month = datetime.datetime.now().strftime("%B %Y")
             total = sum(categories.values())
 
-            result = f"📊 Sample spending data for {current_month}:\n"
+            result = f"[DATA] Sample spending data for {current_month}:\n"
             result += f"Total: ${total:,.2f}\n\n"
 
             for category, amount in categories.items():

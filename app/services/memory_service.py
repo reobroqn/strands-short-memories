@@ -23,9 +23,12 @@ class MemoryService:
         try:
             # Set a dummy OpenAI key for mem0 to avoid errors
             os.environ["OPENAI_API_KEY"] = "dummy-key-for-mem0"
+            # Try with default configuration first
             self.memory = Memory()
         except Exception as e:
-            logger.error(f"Memory service initialization error: {e!s}")
+            logger.warning(f"Memory service initialization error: {e!s}")
+            # Continue without memory service
+            logger.warning("Memory service will be unavailable")
             self.memory = None
 
     def store_memory(self, user_id: str, content: str) -> dict[str, Any]:

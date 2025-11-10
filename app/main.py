@@ -25,7 +25,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from .api.routes import router
+from .api import router
 from .config.settings import get_settings
 
 # Configure logging
@@ -51,7 +51,6 @@ async def lifespan(app: FastAPI):
     logger.info("=" * 80)
     logger.info(f"Starting {settings.app_name} v{settings.app_version}")
     logger.info("=" * 80)
-    logger.info(f"Model: {settings.bedrock_model_id}")
     logger.info(f"Memory Backend: {settings.memory_backend}")
     logger.info(f"Conversation Window: {settings.conversation_window_size} messages")
     logger.info("=" * 80)
@@ -103,12 +102,12 @@ app = FastAPI(
     - **Long-term Memory**: Persistent storage using mem0.io
     - **Agent State**: User preferences and session data
 
-    ### 💬 Conversational AI
+    ### [CHAT] Conversational AI
     - Natural language interaction with financial context
     - Personalized responses based on user preferences
     - Multi-turn conversations with context retention
 
-    ### 📊 Financial Assistance (Educational)
+    ### [DATA] Financial Assistance (Educational)
     - Budget analysis and planning
     - Savings goal tracking
     - Spending pattern insights
