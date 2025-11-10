@@ -16,6 +16,7 @@ from ..models.schemas import (
     InitializePreferencesRequest,
     MemoryStoreResponse,
 )
+from ..services.agent_manager import AgentType
 from ..services.agent_service import AgentService
 
 logger = logging.getLogger(__name__)
@@ -41,7 +42,7 @@ def get_agent_service() -> AgentService:
 )
 async def get_agent_state(
     user_id: str,
-    agent_type: str = "memory",
+    agent_type: AgentType = AgentType.MEMORY,
     service: AgentService = Depends(get_agent_service),
 ):
     """Get agent state information."""

@@ -9,8 +9,23 @@ Exports:
     - Settings: Settings class for configuration
     - MEMORY_SYSTEM_PROMPT: System prompt for memory-enabled agents
     - BASIC_SYSTEM_PROMPT: System prompt for basic agents
+    - FINANCIAL_SYSTEM_PROMPT: System prompt for financial agents
+    - BUDGET_SYSTEM_PROMPT: System prompt for budget agents
 """
 
-from .settings import BASIC_SYSTEM_PROMPT, MEMORY_SYSTEM_PROMPT, Settings, get_settings
+from .prompts import (
+    BASIC_SYSTEM_PROMPT,
+    BUDGET_SYSTEM_PROMPT,
+    FINANCIAL_SYSTEM_PROMPT,
+    MEMORY_SYSTEM_PROMPT,
+)
+from .settings import Settings, get_settings
 
-__all__ = ["BASIC_SYSTEM_PROMPT", "MEMORY_SYSTEM_PROMPT", "Settings", "get_settings"]
+__all__ = [
+    "BASIC_SYSTEM_PROMPT",
+    "BUDGET_SYSTEM_PROMPT",
+    "FINANCIAL_SYSTEM_PROMPT",
+    "MEMORY_SYSTEM_PROMPT",
+    "Settings",
+    "get_settings",
+]

@@ -9,24 +9,22 @@ dependencies = [
     "fastapi[standard]==0.115.6",
     "pydantic==2.10.4",
     "pydantic-settings==2.7.0",
-
     # Strands Agents SDK and tools with Gemini support
     "strands-agents[gemini]>=1.15.0",
     "strands-agents-tools>=0.2.14",
-
     # Memory backend dependencies (Lab 2)
     # FAISS for local vector storage (default)
     "faiss-cpu>=1.9.0",
     # mem0.ai for memory management
     "mem0ai>=0.1.0",
+    # OpenSearch for mem0 memory backend
+    "opensearch-py>=2.0.0",
 
     # Financial data (Lab 3)
     "yfinance>=0.2.0",
-
     # Additional dependencies
     "httpx>=0.28.0",
     "python-multipart>=0.0.20",
-
     # Logging and monitoring
     "python-json-logger>=3.2.0",
 ]
