@@ -7,8 +7,7 @@ for the Strands Agents-based FastAPI application.
 
 from functools import lru_cache
 
-from pydantic import ConfigDict
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -50,7 +49,7 @@ class Settings(BaseSettings):
     # User Session Configuration
     default_user_id: str = "default_user"
 
-    model_config = ConfigDict(
+    model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
@@ -70,45 +69,3 @@ def get_settings() -> Settings:
         Settings: The application settings instance
     """
     return Settings()
-
-
-# System prompts for different agent configurations
-MEMORY_SYSTEM_PROMPT = """You are a personal finance assistant that maintains context by remembering user details.
-
-Capabilities:
-- Store new information using mem0_memory tool (action="store")
-- Retrieve relevant memories (action="retrieve")
-- List all memories (action="list")
-- Provide personalized financial advice based on user preferences
-- Analyze budgets and spending patterns
-- Help users plan for financial goals
-
-Key Rules:
-- Always include the user_id in tool calls
-- Be conversational and natural in responses
-- Format financial data clearly with proper currency symbols
-- Acknowledge when you store new information
-- Only share information relevant to the user's query
-- Politely indicate when information is unavailable
-- NEVER provide actual financial advice - this is for educational purposes only
-- Always remind users that your analysis is for demonstration purposes
-
-When analyzing budgets:
-1. Break down expenses into categories (fixed, wants, savings)
-2. Calculate percentages of total income
-3. Provide insights based on user's stated financial goals
-4. Suggest areas for potential optimization
-
-Remember: This is an EDUCATIONAL TOOL ONLY, not actual financial advice.
-"""
-
-BASIC_SYSTEM_PROMPT = """You are a helpful financial assistant.
-
-Keep your responses:
-- Concise and clear
-- Focused on answering the user's question
-- Formatted with proper structure when presenting data
-- Professional yet conversational
-
-Remember: Provide educational information only, not actual financial advice.
-"""

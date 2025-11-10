@@ -6,19 +6,37 @@ instead of AWS Bedrock.
 """
 
 import datetime
+from enum import StrEnum
 import logging
 import random
 from typing import Any
 
-from mem0 import Memory
 from strands import Agent, tool
 from strands.models.gemini import GeminiModel
-from strands_tools import calculator
+from strands_tools import calculator, mem0_memory, use_llm
 
+from app.config.prompts import (
+    BASIC_SYSTEM_PROMPT,
+    BUDGET_SYSTEM_PROMPT,
+    FINANCIAL_SYSTEM_PROMPT,
+    MEMORY_SYSTEM_PROMPT,
+)
 from app.config.settings import get_settings
 from app.models.schemas import ChatResponse
 
+
+class AgentType(StrEnum):
+    """Enumeration of available agent types."""
+
+    BASIC = "basic"
+    FINANCIAL = "financial"
+    BUDGET = "budget"
+    MEMORY = "memory"
+
+
 logger = logging.getLogger(__name__)
+
+# Try to import memory tools
 
 
 class AgentManager:
@@ -33,9 +51,9 @@ class AgentManager:
     def _create_gemini_model(self):
         """Create Gemini model instance."""
         if not self.settings.gemini_api_key:
-            logger.warning("No Gemini API key provided - using fallback agent")
-            # Return a basic agent without Gemini
-            return Agent()
+            raise ValueError(
+                "Gemini API key is required. Please set GEMINI_API_KEY in your environment."
+            )
 
         return GeminiModel(
             client_args={
@@ -48,23 +66,23 @@ class AgentManager:
     def get_or_create_agent(
         self,
         user_id: str,
-        agent_type: str = "memory",
+        agent_type: AgentType = AgentType.MEMORY,
         session_id: str | None = None,
     ) -> Agent:
         """Get existing agent or create new one."""
-        agent_key = f"{user_id}_{agent_type}_{session_id or 'default'}"
+        agent_key = f"{user_id}_{agent_type.value}_{session_id or 'default'}"
 
         if agent_key not in self.agents:
-            logger.info(f"Creating new {agent_type} agent for user {user_id}")
+            logger.info(f"Creating new {agent_type.value} agent for user {user_id}")
 
-            if agent_type == "basic":
+            if agent_type == AgentType.BASIC:
                 agent = self._create_basic_agent()
-            elif agent_type == "financial":
+            elif agent_type == AgentType.FINANCIAL:
                 agent = self._create_financial_agent()
-            elif agent_type == "budget":
+            elif agent_type == AgentType.BUDGET:
                 agent = self._create_budget_agent()
-            elif agent_type == "memory":
-                agent = self._create_memory_agent(user_id=user_id)
+            elif agent_type == AgentType.MEMORY:
+                agent = self._create_memory_agent()
             else:
                 agent = self._create_basic_agent()
 
@@ -74,34 +92,20 @@ class AgentManager:
 
     def _create_basic_agent(self) -> Agent:
         """Create basic conversational agent."""
-        if isinstance(self.gemini_model, Agent):
-            # Fallback agent without Gemini model
-            return self.gemini_model
-
         return Agent(
             model=self.gemini_model,
-            system_prompt="""You are a helpful financial assistant.
-            Provide clear, accurate financial advice and answer questions about money management.""",
+            system_prompt=BASIC_SYSTEM_PROMPT,
         )
 
     def _create_financial_agent(self) -> Agent:
         """Create financial-focused agent."""
-        if isinstance(self.gemini_model, Agent):
-            # Fallback agent without Gemini model
-            return self.gemini_model
-
         return Agent(
             model=self.gemini_model,
-            system_prompt="""You are a financial advisor specializing in personal finance,
-            budgeting, and investment planning. Provide comprehensive financial guidance.""",
+            system_prompt=FINANCIAL_SYSTEM_PROMPT,
         )
 
     def _create_budget_agent(self) -> Agent:
         """Create budget analysis agent with financial tools."""
-        if isinstance(self.gemini_model, Agent):
-            # Fallback agent without Gemini model
-            return self.gemini_model
-
         budget_tool = self._get_calculate_budget_tool()
         chart_tool = self._get_create_chart_tool()
         sample_data_tool = self._get_generate_sample_data_tool()
@@ -109,94 +113,38 @@ class AgentManager:
         return Agent(
             model=self.gemini_model,
             tools=[calculator, budget_tool, chart_tool, sample_data_tool],
-            system_prompt="""You are a budget analysis specialist. Help users understand their
-            spending patterns, create budgets, and visualize financial data.""",
+            system_prompt=BUDGET_SYSTEM_PROMPT,
         )
 
-    def _create_memory_agent(self, user_id: str) -> Agent:
-        """Create memory-enabled agent with long-term memory capabilities."""
-        if isinstance(self.gemini_model, Agent):
-            # Fallback agent without Gemini model
-            return self.gemini_model
+    def _create_memory_agent(self) -> Agent:
+        """Create memory-enabled agent with long-term memory capabilities using strands_tools.mem0_memory."""
 
-        # Initialize mem0 memory
-        mem0_memory = Memory()
-
-        # Define memory tools
-
-        @tool
-        def mem0_store_memory(content: str) -> str:
-            """Store information in long-term memory."""
-            try:
-                mem0_memory(user_id=user_id, operation="store", content=content)
-                return f"[STORED] {content[:50]}..."
-            except Exception as e:
-                return f"[ERROR] Storage failed: {e!s}"
-
-        @tool
-        def mem0_retrieve_memories(query: str, max_results: int = 3) -> str:
-            """Retrieve relevant memories using semantic search."""
-            try:
-                results = mem0_memory(
-                    user_id=user_id, operation="search", query=query, limit=max_results
-                )
-                memories = results.get("results", [])
-                if memories:
-                    memory_text = "\n".join(
-                        [f"- {mem.get('memory', '')[:100]}..." for mem in memories]
-                    )
-                    return f"[MEMORY] Relevant memories:\n{memory_text}"
-                else:
-                    return "[MEMORY] No relevant memories found."
-            except Exception as e:
-                return f"[ERROR] Retrieval failed: {e!s}"
-
-        @tool
-        def mem0_list_memories() -> str:
-            """List all stored memories."""
-            try:
-                results = mem0_memory(user_id=user_id, operation="get_all")
-                memories = results.get("results", [])
-                if memories:
-                    memory_list = "\n".join(
-                        [
-                            f"- {mem.get('memory', '')[:100]}..."
-                            for mem in memories[:10]  # Limit to 10 most recent
-                        ]
-                    )
-                    return f"[LIST] Recent memories:\n{memory_list}"
-                else:
-                    return "[LIST] No memories stored yet."
-            except Exception as e:
-                return f"[ERROR] Listing failed: {e!s}"
-
+        # Use strands_tools.mem0_memory tool like in the lab
+        # FAISS will be used by default when available
         return Agent(
             model=self.gemini_model,
-            tools=[mem0_store_memory, mem0_retrieve_memories, mem0_list_memories],
-            system_prompt=f"""You are a memory-enabled financial assistant for user {user_id}.
-            Remember important information about the user's preferences, goals, and financial situation.
-            Use your memory tools to provide personalized advice based on past conversations.
-            Always store important information for future reference.""",
+            system_prompt=MEMORY_SYSTEM_PROMPT,
+            tools=[mem0_memory, use_llm],
         )
 
     def chat(
         self,
         user_id: str,
         message: str,
-        agent_type: str = "memory",
+        agent_type: AgentType = AgentType.MEMORY,
         session_id: str | None = None,
     ) -> dict[str, Any]:
         """Chat with specified agent type."""
         try:
             agent = self.get_or_create_agent(user_id, agent_type, session_id)
-            response = agent.run(message)
+            response = agent(message)
 
             return ChatResponse(
                 response=response.message["content"][0]["text"],
                 user_id=user_id,
                 session_id=session_id,
                 message_count=len(getattr(agent, "messages", [])),
-                metadata={"agent_type": agent_type},
+                metadata={"agent_type": agent_type.value},
             ).model_dump()
 
         except Exception as e:

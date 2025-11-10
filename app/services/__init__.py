@@ -9,8 +9,11 @@ This module contains business logic services that handle:
 
 Exports:
     - AgentService: Main service class for managing Strands Agents
+    - AgentManager: Core agent lifecycle management with Gemini models
+    - AgentType: Enumeration of available agent types
 """
 
+from .agent_manager import AgentManager, AgentType
 from .agent_service import AgentService
 
-__all__ = ["AgentService"]
+__all__ = ["AgentManager", "AgentService", "AgentType"]

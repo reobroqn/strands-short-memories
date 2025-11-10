@@ -10,8 +10,7 @@ import logging
 import random
 from typing import Any
 
-from .agent_manager import AgentManager
-from .memory_service import MemoryService
+from .agent_manager import AgentManager, AgentType
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +21,7 @@ class AgentService:
 
     This service acts as a unified interface for:
     - Agent lifecycle management
-    - Memory operations using mem0.io
+    - Memory operations using strands_tools.mem0_memory
     - Budget and financial analysis
     - Portfolio orchestration
     """
@@ -30,7 +29,6 @@ class AgentService:
     def __init__(self):
         """Initialize the agent service with all components."""
         self.agent_manager = AgentManager()
-        self.memory_service = MemoryService()
         self._cached_stock_data = {}
         self._cached_portfolios = {}
 
@@ -39,7 +37,7 @@ class AgentService:
         self,
         user_id: str,
         message: str,
-        agent_type: str = "memory",
+        agent_type: AgentType = AgentType.MEMORY,
         session_id: str | None = None,
     ) -> dict[str, Any]:
         """Chat with specified agent type."""
@@ -48,12 +46,11 @@ class AgentService:
     def get_agent_state(self, user_id: str) -> dict[str, Any]:
         """Get agent state information."""
         try:
-            agent = self.agent_manager.get_or_create_agent(user_id, "memory")
-            messages = getattr(agent, "messages", [])
+            agent = self.agent_manager.get_or_create_agent(user_id, AgentType.MEMORY)
 
             return {
                 "agent_id": f"{user_id}_memory",
-                "message_count": len(messages),
+                "message_count": len(agent.messages),
                 "state": {"status": "active", "model": "gemini"},
                 "available_tools": agent.tool_names
                 if hasattr(agent, "tool_names")
@@ -66,8 +63,7 @@ class AgentService:
     def get_conversation_history(self, user_id: str) -> list[dict[str, Any]]:
         """Get conversation history."""
         try:
-            agent = self.agent_manager.get_or_create_agent(user_id, "memory")
-            messages = getattr(agent, "messages", [])
+            agent = self.agent_manager.get_or_create_agent(user_id, AgentType.MEMORY)
 
             return [
                 {
@@ -75,7 +71,7 @@ class AgentService:
                     "content": msg.get("content", ""),
                     "timestamp": msg.get("timestamp", ""),
                 }
-                for msg in messages
+                for msg in agent.messages
             ]
         except Exception as e:
             logger.error(f"Failed to get conversation history: {e!s}")
@@ -98,33 +94,32 @@ class AgentService:
             logger.error(f"Failed to reset agent: {e!s}")
             raise
 
-    # Memory Operations
-    def store_memory(self, user_id: str, content: str) -> dict[str, Any]:
-        """Store information in long-term memory."""
-        return self.memory_service.store_memory(user_id, content)
-
-    def retrieve_memories(
-        self,
-        user_id: str,
-        query: str,
-        min_score: float = 0.3,
-        max_results: int = 5,
-    ) -> dict[str, Any]:
-        """Retrieve memories using semantic search."""
-        return self.memory_service.retrieve_memories(
-            user_id, query, min_score, max_results
-        )
-
-    def list_all_memories(self, user_id: str) -> list[dict[str, Any]]:
-        """List all memories for a user."""
-        result = self.memory_service.list_all_memories(user_id)
-        return result.get("results", [])
-
+    # Memory Operations (using strands_tools.mem0_memory directly)
     def initialize_user_preferences(
         self, user_id: str, preferences: str
     ) -> dict[str, Any]:
-        """Initialize user preferences in memory."""
-        return self.memory_service.initialize_user_preferences(user_id, preferences)
+        """Initialize user preferences in memory using memory agent."""
+        try:
+            # Create memory agent with user preferences
+            agent = self.agent_manager.get_or_create_agent(
+                user_id=user_id,
+                agent_type=AgentType.MEMORY,
+            )
+
+            # Store preferences using mem0_memory tool
+            content = f"USER PREFERENCES: {preferences}"
+            agent.tool.mem0_memory(action="store", content=content, user_id=user_id)
+
+            return {
+                "success": True,
+                "message": "User preferences initialized successfully",
+            }
+        except Exception as e:
+            logger.error(f"Preference initialization error: {e!s}")
+            return {
+                "success": False,
+                "message": f"Preference initialization failed: {e!s}",
+            }
 
     # Budget and Financial Analysis
     def calculate_50_30_20_budget(self, monthly_income: float) -> dict[str, Any]:
