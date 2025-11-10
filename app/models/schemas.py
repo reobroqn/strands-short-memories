@@ -423,11 +423,12 @@ class ChartRequest(BaseModel):
 
 
 class ChartResponse(BaseModel):
-    """Response model for chart creation."""
+    """Response model for chart data."""
     title: str = Field(..., description="Chart title")
-    data: Dict[str, float] = Field(..., description="Data used in chart")
-    image_base64: str = Field(..., description="Base64 encoded chart image")
-    chart_type: str = Field(..., description="Type of chart created")
+    data: Dict[str, float] = Field(..., description="Data for visualization")
+    chart_type: str = Field(default="pie", description="Recommended chart type")
+    labels: List[str] = Field(..., description="Labels for chart data")
+    values: List[float] = Field(..., description="Values for chart data")
 
 
 class SampleDataResponse(BaseModel):

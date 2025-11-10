@@ -90,9 +90,9 @@ async def api_info():
             "agents": ["basic", "financial", "memory", "budget", "orchestrator"],
             "features": [
                 "Memory integration (short-term and long-term)",
-                "Budget analysis and visualization",
+                "Budget analysis and data preparation",
                 "Portfolio orchestration with specialist agents",
-                "Custom tools and data visualization",
+                "Custom tools and financial analysis",
                 "Multi-agent coordination"
             ]
         },
@@ -105,12 +105,11 @@ async def api_info():
             },
             "budget": {
                 "calculate": "POST /budget/calculate",
-                "chart": "POST /budget/chart",
+                "chart_data": "POST /budget/chart",
                 "sample_data": "GET /budget/sample-data"
             },
             "portfolio": {
                 "orchestrate": "POST /portfolio/orchestrate",
-                "visualizations": "GET /portfolio/visualizations",
                 "data": "GET /portfolio/data"
             },
             "agent": {
@@ -446,17 +445,17 @@ async def calculate_budget(
 @router.post(
     "/budget/chart",
     response_model=ChartResponse,
-    summary="Create Chart",
-    description="Create a pie chart visualization",
+    summary="Prepare Chart Data",
+    description="Prepare data for client-side chart visualization",
     tags=["Budget"]
 )
 async def create_chart(
     request: ChartRequest,
     service: AgentService = Depends(get_agent_service)
 ):
-    """Create a financial chart."""
+    """Prepare chart data for client-side visualization."""
     try:
-        result = service.create_chart(request.data, request.title)
+        result = service.create_chart_data(request.data, request.title)
         return ChartResponse(**result)
 
     except Exception as e:
@@ -519,30 +518,6 @@ async def orchestrate_portfolio(
         )
 
 
-@router.get(
-    "/portfolio/visualizations",
-    summary="Get Visualizations",
-    description="Retrieve all cached visualization data",
-    tags=["Portfolio"]
-)
-async def get_visualizations(
-    service: AgentService = Depends(get_agent_service)
-):
-    """Get cached visualizations."""
-    try:
-        visualizations = service.get_cached_visualizations()
-        return {
-            "success": True,
-            "visualizations": visualizations,
-            "count": len(visualizations)
-        }
-
-    except Exception as e:
-        logger.error(f"Visualization retrieval error: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get visualizations: {str(e)}"
-        )
 
 
 @router.get(

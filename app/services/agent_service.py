@@ -10,14 +10,9 @@ This service provides complete agent capabilities:
 """
 
 import logging
-import io
-import base64
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import pandas as pd
 import json
 
@@ -58,7 +53,6 @@ class AgentService:
         self.settings = get_settings()
         self.agents: Dict[str, Agent] = {}
         self._cached_stock_data = {}
-        self._cached_visualizations = {}
 
         # Initialize AWS Bedrock model
         self.bedrock_model = BedrockModel(
@@ -401,28 +395,18 @@ class AgentService:
             logger.error(f"Budget calculation failed: {str(e)}")
             raise
 
-    def create_chart(self, data: Dict[str, float], title: str) -> Dict[str, Any]:
-        """Create a pie chart visualization."""
+    def create_chart_data(self, data: Dict[str, float], title: str) -> Dict[str, Any]:
+        """Prepare data for chart visualization."""
         try:
-            plt.figure(figsize=(8, 6))
-            plt.pie(data.values(), labels=data.keys(), autopct='%1.1f%%')
-            plt.title(title)
-
-            # Save to base64
-            buffer = io.BytesIO()
-            plt.savefig(buffer, format='png', bbox_inches='tight')
-            buffer.seek(0)
-            image_base64 = base64.b64encode(buffer.getvalue()).decode()
-            plt.close()
-
             return {
                 "title": title,
                 "data": data,
-                "image_base64": image_base64,
-                "chart_type": "pie"
+                "chart_type": "pie",
+                "labels": list(data.keys()),
+                "values": list(data.values())
             }
         except Exception as e:
-            logger.error(f"Chart creation failed: {str(e)}")
+            logger.error(f"Chart data preparation failed: {str(e)}")
             raise
 
     def generate_sample_spending_data(self) -> Dict[str, Any]:
@@ -500,8 +484,7 @@ class AgentService:
             return {
                 "success": True,
                 "response": str(result),
-                "cached_portfolios": self.get_cached_portfolios(),
-                "visualizations_available": len(self.get_cached_visualizations()) > 0
+                "cached_portfolios": self.get_cached_portfolios()
             }
         except Exception as e:
             logger.error(f"Portfolio orchestration failed: {str(e)}")
@@ -741,14 +724,9 @@ class AgentService:
             if 'portfolio' in key.lower()
         }
 
-    def get_cached_visualizations(self) -> Dict[str, Any]:
-        """Get all cached visualization data."""
-        return self._cached_visualizations
-
     def clear_cache(self) -> None:
         """Clear all cached data."""
         self._cached_stock_data.clear()
-        self._cached_visualizations.clear()
         logger.info("Cache cleared successfully")
 
     # ============================================================================
