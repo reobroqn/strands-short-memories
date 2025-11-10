@@ -5,6 +5,7 @@ This module contains endpoints for chatting with different types of agents
 including basic, financial, memory, budget, and orchestrator agents.
 """
 
+from functools import lru_cache
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -19,13 +20,11 @@ logger = logging.getLogger(__name__)
 # Create API router
 router = APIRouter()
 
-# Global service instance
-agent_service = AgentService()
 
-
+@lru_cache
 def get_agent_service() -> AgentService:
     """Dependency to get the agent service instance."""
-    return agent_service
+    return AgentService()
 
 
 @router.post(
@@ -36,7 +35,9 @@ def get_agent_service() -> AgentService:
     tags=["Chat"],
 )
 async def chat_with_agent(
-    request: ChatRequest, service: AgentService = Depends(get_agent_service)
+    request: ChatRequest,
+    service: AgentService = Depends(get_agent_service),
+    agent_type: AgentType = AgentType.MEMORY,
 ):
     """
     Unified chat endpoint supporting multiple agent types.
@@ -54,7 +55,6 @@ async def chat_with_agent(
         # Use default user_id if not provided
         settings = get_settings()
         user_id = request.user_id or settings.default_user_id
-        agent_type = AgentType.MEMORY
 
         logger.info(f"Chat request - User: {user_id}, Agent: {agent_type}")
 

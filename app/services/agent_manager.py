@@ -39,7 +39,6 @@ logger = logging.getLogger(__name__)
 # Try to import memory tools
 
 
-
 class AgentManager:
     """Core agent lifecycle management with Gemini models."""
 
@@ -83,7 +82,7 @@ class AgentManager:
             elif agent_type == AgentType.BUDGET:
                 agent = self._create_budget_agent()
             elif agent_type == AgentType.MEMORY:
-                agent = self._create_memory_agent(user_id=user_id)
+                agent = self._create_memory_agent()
             else:
                 agent = self._create_basic_agent()
 
@@ -117,7 +116,7 @@ class AgentManager:
             system_prompt=BUDGET_SYSTEM_PROMPT,
         )
 
-    def _create_memory_agent(self, user_id: str) -> Agent:
+    def _create_memory_agent(self) -> Agent:
         """Create memory-enabled agent with long-term memory capabilities using strands_tools.mem0_memory."""
 
         # Use strands_tools.mem0_memory tool like in the lab
