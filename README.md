@@ -92,13 +92,33 @@ PORT=8000
 
 ### Running the Application
 
+#### Option 1: FastAPI CLI (Recommended)
+
 ```bash
-# Development mode with auto-reload
+# Development mode with auto-reload and debugging
 uv run fastapi dev app/main.py --host 0.0.0.0 --port 8000
 
-# Production mode
+# Production mode with optimized settings
 uv run fastapi run app/main.py --host 0.0.0.0 --port 8000 --workers 4
 ```
+
+#### Option 2: Project Scripts (After Installation)
+
+```bash
+# Install in development mode first
+uv pip install -e .
+
+# Then use convenient shortcuts
+strands-dev     # Development server
+strands-prod    # Production server  
+strands-start   # Development server (alias)
+```
+
+**Key Benefits of FastAPI CLI over uvicorn:**
+- **Built-in production features**: Automatic worker management, SSL handling, process monitoring
+- **Performance optimizations**: Pre-configured for production workloads
+- **Standardized commands**: Consistent with FastAPI ecosystem and best practices
+- **Future-proof**: Aligned with FastAPI development direction
 
 Access the API:
 - **Interactive Docs**: http://localhost:8000/docs
@@ -186,14 +206,14 @@ The interactive documentation provides a clean interface to explore all availabl
 
 ## [TECH] Technology Stack
 
-- **Framework**: FastAPI
+- **Framework**: FastAPI (modern ASGI framework with built-in CLI)
 - **AI SDK**: Strands Agents SDK (v1.15.0+)
 - **AI Model**: Google Gemini (gemini-2.0-flash-exp)
-- **Memory**: mem0ai, FAISS (default), OpenSearch (optional)
-- **Data Analysis**: pandas, numpy
+- **Memory**: mem0ai with FAISS backend (local vector similarity search)
+- **Financial Data**: yfinance for market data and analysis
 - **Code Quality**: Ruff (linting and formatting)
 - **Python**: 3.13+
-- **Package Manager**: uv
+- **Package Manager**: uv (recommended for FastAPI projects)
 
 ## 📖 API Documentation
 
@@ -239,6 +259,7 @@ strands/
 │   │   └── budget_routes.py    # Budget analysis endpoints
 │   ├── config/
 │   │   ├── __init__.py
+│   │   ├── prompts.py          # System prompts for agents
 │   │   └── settings.py         # Application settings
 │   ├── models/
 │   │   ├── __init__.py
@@ -247,12 +268,12 @@ strands/
 │   │   └── portfolio_schemas.py # Portfolio models
 │   └── services/
 │       ├── __init__.py
-│       ├── agent_manager.py    # Strands agent management
-│       ├── agent_service.py    # Agent orchestration
-│       ├── memory_service.py   # Memory operations
-│       └── utils.py            # Utility functions
+│       └── agent_manager.py    # Strands agent management with centralized prompts
+├── scripts/
+│   └── run.py                  # Development scripts for convenience
+├── Makefile                    # Development commands (if make is available)
 ├── .env.example                # Example environment variables
-├── pyproject.toml              # Project dependencies and configuration
+├── pyproject.toml              # Project dependencies and configuration with start scripts
 └── README.md                   # This file
 ```
 
@@ -267,22 +288,38 @@ This application includes several security features:
 
 ## [MEMORY] Memory Backends
 
-Lab 2 supports three memory backends:
+### FAISS (Default - Local Vector Similarity Search)
 
-### 1. FAISS (Default - Local Development)
+FAISS (Facebook AI Similarity Search) is a library for efficient similarity search and clustering of dense vectors. It provides:
+
+- **In-memory vector storage** with extremely fast search algorithms
+- **CPU optimized performance** (faiss-cpu variant)
+- **No external dependencies** - perfect for local development
+- **Educational focus** - matches Strands Agents lab requirements
+
 ```env
 MEMORY_BACKEND=faiss
 ```
-No additional configuration needed. Uses local vector storage.
 
-### 2. OpenSearch (AWS Recommended)
+**Why FAISS is Perfect for This Project:**
+- ✅ **Local Development**: No database server needed
+- ✅ **Single-user Memory**: Ideal for educational applications
+- ✅ **Fast Prototyping**: Quick setup, high performance
+- ✅ **Lab Compliance**: Matches the Strands Agents notebook approach
+- ✅ **Simple Architecture**: Less complexity than full vector databases
+
+### Optional Production Backends
+
+For production scenarios requiring persistence or multi-user support:
+
+**OpenSearch (AWS Recommended)**
 ```env
 MEMORY_BACKEND=opensearch
 OPENSEARCH_HOST=your-opensearch-endpoint
 AWS_REGION=us-west-2
 ```
 
-### 3. Mem0 Platform
+**Mem0 Platform**
 ```env
 MEMORY_BACKEND=mem0_platform
 MEM0_API_KEY=your_mem0_api_key
@@ -291,14 +328,22 @@ MEM0_API_KEY=your_mem0_api_key
 ## [FEATURES] Key Features
 
 ### Agent Management
+- **Centralized Prompts**: All system prompts defined in `app/config/prompts.py`
 - **Multiple Agent Types**: Basic, financial, memory-enabled, and budget analysis agents
-- **Custom Tools**: Specialized tools for budget calculations, data analysis, and memory operations
+- **Clean Architecture**: AgentManager imports prompts without redefinition
 - **Google Gemini Integration**: Modern AI model with natural language understanding
 
 ### Memory System
+- **FAISS Backend**: Local vector similarity search for educational use
 - **Short-term Memory**: Conversation history with sliding window management
 - **Long-term Memory**: Persistent storage using mem0 for user preferences and context
-- **Flexible Backends**: Support for FAISS (default), OpenSearch, or mem0 platform
+- **Lab Compliance**: Matches Strands Agents notebook implementation exactly
+
+### Code Quality
+- **Optimized Dependencies**: Removed unnecessary packages (e.g., sentence-transformers)
+- **Clean Imports**: Fixed relative import issues and module structure
+- **FastAPI CLI**: Modern development and deployment commands
+- **Project Scripts**: Convenient command-line shortcuts for common operations
 
 ### Financial Analysis
 - **Budget Planning**: 50/30/20 budget calculations and recommendations
