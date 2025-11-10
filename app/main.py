@@ -46,42 +46,8 @@ async def lifespan(app: FastAPI):
     - Startup: Initialize resources, log application start
     - Shutdown: Cleanup resources, log application shutdown
     """
-    # Startup
-    settings = get_settings()
-    logger.info("=" * 80)
-    logger.info(f"Starting {settings.app_name} v{settings.app_version}")
-    logger.info("=" * 80)
-    logger.info(f"Memory Backend: {settings.memory_backend}")
-    logger.info(f"Conversation Window: {settings.conversation_window_size} messages")
-    logger.info("=" * 80)
-    logger.info("")
-    logger.info(" Lab 2: Memory Integration Concepts")
-    logger.info("=" * 80)
-    logger.info("Short-term Memory:")
-    logger.info(
-        "  1. Conversation History - Managed by SlidingWindowConversationManager"
-    )
-    logger.info("  2. Agent State - Stores user preferences and session data")
-    logger.info("  3. Request State - Per-request context (handled automatically)")
-    logger.info("")
-    logger.info("Long-term Memory:")
-    logger.info("  - mem0.io integration for persistent storage")
-    logger.info("  - Semantic search for relevant context retrieval")
-    logger.info("  - User preferences maintained across sessions")
-    logger.info("=" * 80)
-    logger.info("")
-    logger.info("  EDUCATIONAL PURPOSE ONLY")
-    logger.info("This application demonstrates budget analysis with AI agents.")
-    logger.info("This is NOT financial advice. Verify all outputs with expert advice.")
-    logger.info("=" * 80)
 
     yield
-
-    # Shutdown
-    logger.info("")
-    logger.info("=" * 80)
-    logger.info(f"Shutting down {settings.app_name}")
-    logger.info("=" * 80)
 
 
 # Initialize FastAPI application
@@ -90,28 +56,6 @@ settings = get_settings()
 app = FastAPI(
     title=settings.app_name,
     description="""
-    # Unified Strands Agents API
-
-    A comprehensive FastAPI application demonstrating the complete **Strands Agents** ecosystem,
-    consolidating all three labs into a unified platform:
-
-    ## Features
-
-    ### 🧠 Memory Integration
-    - **Short-term Memory**: Conversation history with sliding window management
-    - **Long-term Memory**: Persistent storage using mem0.io
-    - **Agent State**: User preferences and session data
-
-    ### [CHAT] Conversational AI
-    - Natural language interaction with financial context
-    - Personalized responses based on user preferences
-    - Multi-turn conversations with context retention
-
-    ### [DATA] Financial Assistance (Educational)
-    - Budget analysis and planning
-    - Savings goal tracking
-    - Spending pattern insights
-
     ## Tutorial Concepts Demonstrated
 
     This application implements concepts from the tutorial:
@@ -130,12 +74,6 @@ app = FastAPI(
 
     5. **Tool Integration**: Using `mem0_memory` and `use_llm` tools for
        memory operations and natural language generation
-
-    ## ⚠️ Important Notice
-
-    **EDUCATIONAL PURPOSE ONLY**: This application demonstrates AI agent capabilities
-    for budget analysis. This is NOT financial advice. All analysis should be
-    verified against expert advice.
 
     ## Getting Started
 

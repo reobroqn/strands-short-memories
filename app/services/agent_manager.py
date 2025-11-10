@@ -189,7 +189,7 @@ class AgentManager:
         """Chat with specified agent type."""
         try:
             agent = self.get_or_create_agent(user_id, agent_type, session_id)
-            response = agent.run(message)
+            response = agent(message)
 
             return ChatResponse(
                 response=response.message["content"][0]["text"],

@@ -49,11 +49,10 @@ class AgentService:
         """Get agent state information."""
         try:
             agent = self.agent_manager.get_or_create_agent(user_id, "memory")
-            messages = getattr(agent, "messages", [])
 
             return {
                 "agent_id": f"{user_id}_memory",
-                "message_count": len(messages),
+                "message_count": len(agent.messages),
                 "state": {"status": "active", "model": "gemini"},
                 "available_tools": agent.tool_names
                 if hasattr(agent, "tool_names")
@@ -67,7 +66,6 @@ class AgentService:
         """Get conversation history."""
         try:
             agent = self.agent_manager.get_or_create_agent(user_id, "memory")
-            messages = getattr(agent, "messages", [])
 
             return [
                 {
@@ -75,7 +73,7 @@ class AgentService:
                     "content": msg.get("content", ""),
                     "timestamp": msg.get("timestamp", ""),
                 }
-                for msg in messages
+                for msg in agent.messages
             ]
         except Exception as e:
             logger.error(f"Failed to get conversation history: {e!s}")
