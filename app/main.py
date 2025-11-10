@@ -17,12 +17,13 @@ Following the tutorial at:
 https://github.com/strands-agents/samples/blob/main/02-samples/11-personal-finance-assistant/lab2-memory-integration.ipynb
 """
 
-import logging
 from contextlib import asynccontextmanager
+import logging
+import time
+
 from fastapi import FastAPI, Request, status
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 from .api.routes import router
 from .config.settings import get_settings
@@ -31,10 +32,7 @@ from .config.settings import get_settings
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler("app.log")
-    ]
+    handlers=[logging.StreamHandler(), logging.FileHandler("app.log")],
 )
 logger = logging.getLogger(__name__)
 
@@ -61,7 +59,9 @@ async def lifespan(app: FastAPI):
     logger.info(" Lab 2: Memory Integration Concepts")
     logger.info("=" * 80)
     logger.info("Short-term Memory:")
-    logger.info("  1. Conversation History - Managed by SlidingWindowConversationManager")
+    logger.info(
+        "  1. Conversation History - Managed by SlidingWindowConversationManager"
+    )
     logger.info("  2. Agent State - Stores user preferences and session data")
     logger.info("  3. Request State - Per-request context (handled automatically)")
     logger.info("")
@@ -175,11 +175,12 @@ app = FastAPI(
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
-    openapi_url="/openapi.json"
+    openapi_url="/openapi.json",
 )
 
 
 # Global exception handlers
+
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
@@ -196,8 +197,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             "error": "ValidationError",
             "message": "Invalid request parameters",
             "detail": exc.errors(),
-            "body": exc.body
-        }
+            "body": exc.body,
+        },
     )
 
 
@@ -208,26 +209,26 @@ async def global_exception_handler(request: Request, exc: Exception):
 
     Logs the error and returns a generic error response.
     """
-    logger.error(f"Unhandled exception: {str(exc)}", exc_info=True)
+    logger.error(f"Unhandled exception: {exc!s}", exc_info=True)
 
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
             "error": "InternalServerError",
             "message": "An unexpected error occurred",
-            "detail": str(exc) if settings.debug else "Please contact support"
-        }
+            "detail": str(exc) if settings.debug else "Please contact support",
+        },
     )
 
 
 # Request logging middleware
+
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     """
     Log all incoming requests and their processing time.
     """
-    import time
 
     # Log request
     logger.info(f" {request.method} {request.url.path}")
@@ -255,11 +256,12 @@ app.include_router(router, prefix="/api/v1")
 
 # Root endpoint
 
+
 @app.get(
     "/",
     tags=["Root"],
     summary="Root Endpoint",
-    description="Get basic API information and links"
+    description="Get basic API information and links",
 )
 async def root():
     """
@@ -281,17 +283,17 @@ async def root():
             "short_term_memory": [
                 "Conversation History (SlidingWindowConversationManager)",
                 "Agent State (user preferences)",
-                "Request State (per-request context)"
+                "Request State (per-request context)",
             ],
             "long_term_memory": [
                 "mem0.io integration",
                 "Semantic search",
-                "Persistent user preferences"
+                "Persistent user preferences",
             ],
             "tools": [
                 "mem0_memory (store, retrieve, list)",
-                "use_llm (natural language generation)"
-            ]
+                "use_llm (natural language generation)",
+            ],
         },
         "endpoints": {
             "chat": "POST /api/v1/chat",
@@ -301,8 +303,8 @@ async def root():
             "agent_state": "GET /api/v1/agent/state/{user_id}",
             "conversation_history": "GET /api/v1/agent/history/{user_id}",
             "initialize_preferences": "POST /api/v1/preferences/initialize",
-            "reset_agent": "POST /api/v1/agent/reset/{user_id}"
-        }
+            "reset_agent": "POST /api/v1/agent/reset/{user_id}",
+        },
     }
 
 
@@ -317,5 +319,5 @@ if __name__ == "__main__":
         host=settings.host,
         port=settings.port,
         reload=settings.debug,
-        log_level="info"
+        log_level="info",
     )

@@ -94,7 +94,7 @@ uv sync
 # Create .env file
 cp .env.example .env
 
-# Configure your .env file with AWS credentials
+# Configure your .env file with Google Gemini API key
 ```
 
 ### Environment Variables
@@ -102,9 +102,9 @@ cp .env.example .env
 Create a `.env` file in the project root:
 
 ```env
-# AWS Configuration
-AWS_REGION=us-east-1
-BEDROCK_MODEL_ID=us.anthropic.claude-3-7-sonnet-20250219-v1:0
+# Google Gemini Configuration
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL_ID=gemini-2.0-flash-exp
 
 # Memory Backend (Lab 2)
 MEMORY_BACKEND=faiss  # Options: faiss, opensearch, mem0_platform

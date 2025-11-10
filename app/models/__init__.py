@@ -2,74 +2,79 @@
 Data models module for the Personal Finance Assistant API.
 
 This module contains Pydantic models for request/response validation
-and data serialization across the API.
+and data serialization across the API, organized by domain.
 
-Exports:
-    Request Models:
-        - ChatRequest: Request model for chat endpoint
-        - MemoryStoreRequest: Request for storing memories
-        - MemoryRetrieveRequest: Request for retrieving memories
-        - InitializePreferencesRequest: Request for initializing user preferences
-
-    Response Models:
-        - ChatResponse: Response from chat endpoint
-        - MemoryStoreResponse: Response from memory storage
-        - MemoryRetrieveResponse: Response from memory retrieval
-        - MemoryListResponse: Response listing all memories
-        - AgentStateResponse: Response with agent state information
-        - ConversationHistoryResponse: Response with conversation history
-        - HealthResponse: Health check response
-        - ErrorResponse: Error response model
-
-    Data Models:
-        - Memory: Model representing a single memory item
-        - MemoryAction: Enum for memory actions (store, retrieve, list)
+Domain modules:
+    - base_schemas: Common models (Health, Error, Memory, MemoryAction)
+    - chat_schemas: Chat-related models (ChatRequest, ChatResponse)
+    - memory_schemas: Memory operation models (Store, Retrieve, List)
+    - agent_schemas: Agent state and history models
+    - budget_schemas: Budget and chart models (BudgetCalculation, Chart, SampleData)
+    - portfolio_schemas: Portfolio-related models
 """
 
-from .schemas import (
-    # Enums
-    MemoryAction,
-
-    # Request Models
-    ChatRequest,
-    MemoryStoreRequest,
-    MemoryRetrieveRequest,
-    InitializePreferencesRequest,
-
-    # Response Models
-    ChatResponse,
-    MemoryStoreResponse,
-    MemoryRetrieveResponse,
-    MemoryListResponse,
+# Base schemas (common models)
+# Agent schemas
+from .agent_schemas import (
     AgentStateResponse,
     ConversationHistoryResponse,
-    HealthResponse,
+    InitializePreferencesRequest,
+)
+from .base_schemas import (
     ErrorResponse,
+    HealthResponse,
+    Memory,
+    MemoryAction,
+)
 
-    # Data Models
-    Memory
+# Budget schemas
+from .budget_schemas import (
+    BudgetCalculationRequest,
+    BudgetCalculationResponse,
+    ChartRequest,
+    ChartResponse,
+    SampleDataResponse,
+)
+
+# Chat schemas
+from .chat_schemas import (
+    ChatRequest,
+    ChatResponse,
+)
+
+# Memory schemas
+from .memory_schemas import (
+    MemoryListResponse,
+    MemoryRetrieveRequest,
+    MemoryRetrieveResponse,
+    MemoryStoreRequest,
+    MemoryStoreResponse,
+)
+
+# Portfolio schemas
+from .portfolio_schemas import (
+    PortfolioOrchestrationRequest,
 )
 
 __all__ = [
-    # Enums
-    "MemoryAction",
-
-    # Request Models
-    "ChatRequest",
-    "MemoryStoreRequest",
-    "MemoryRetrieveRequest",
-    "InitializePreferencesRequest",
-
-    # Response Models
-    "ChatResponse",
-    "MemoryStoreResponse",
-    "MemoryRetrieveResponse",
-    "MemoryListResponse",
     "AgentStateResponse",
+    "BudgetCalculationRequest",
+    "BudgetCalculationResponse",
+    "ChartRequest",
+    "ChartResponse",
+    "ChatRequest",
+    "ChatResponse",
     "ConversationHistoryResponse",
-    "HealthResponse",
     "ErrorResponse",
-
-    # Data Models
-    "Memory"
+    "HealthResponse",
+    "InitializePreferencesRequest",
+    "Memory",
+    "MemoryAction",
+    "MemoryListResponse",
+    "MemoryRetrieveRequest",
+    "MemoryRetrieveResponse",
+    "MemoryStoreRequest",
+    "MemoryStoreResponse",
+    "PortfolioOrchestrationRequest",
+    "SampleDataResponse",
 ]
