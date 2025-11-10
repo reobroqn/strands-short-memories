@@ -2,85 +2,54 @@
 
 A comprehensive FastAPI application demonstrating the complete **Strands Agents SDK** ecosystem, consolidating all three educational labs into a unified, production-ready platform. Based on the official [Strands Agents Samples](https://github.com/strands-agents/samples/tree/main/02-samples/11-personal-finance-assistant).
 
-> ⚠️ **EDUCATIONAL PURPOSE ONLY**: This application demonstrates AI agent capabilities for financial analysis. This is NOT financial advice. All analysis should be verified against expert advice.
+> [WARNING] **EDUCATIONAL PURPOSE ONLY**: This application demonstrates AI agent capabilities for financial analysis. This is NOT financial advice. All analysis should be verified against expert advice.
 
-## 🎯 Unified Architecture
+## [TARGET] Unified Architecture
 
 This project consolidates all three Strands Agents labs into a single, cohesive platform that demonstrates:
 
-### 🤖 Agent Types
+### [AI] Agent Types
 - **Basic Agent**: Simple conversational AI
 - **Financial Agent**: Finance-focused assistance
 - **Memory Agent**: Agents with persistent memory (mem0)
 - **Budget Agent**: Budget analysis with visualization tools
 - **Portfolio Orchestrator**: Multi-agent coordination system
 
-### 🛠️ Key Features
+### [TOOLS] Key Features
 - **Memory Integration**: Short-term (conversation) and long-term (mem0) memory
 - **Custom Tools**: Budget calculation, financial visualization, data analysis
 - **Multi-Agent Orchestration**: Specialist agents for portfolio management
 - **Unified API**: Clean endpoints without lab-specific prefixes
 - **Flexible Configuration**: Support for multiple memory backends
 
-### 🏗️ Architecture
+### [STRUCTURE] Architecture
 
 ```
 Unified FastAPI Application
-├── UnifiedAgentService (Core Service)
-│   ├── Agent Lifecycle Management
-│   ├── Memory Operations (mem0)
-│   ├── Custom Tools & Visualizations
-│   └── Multi-Agent Orchestration
+├── Services Layer
+│   ├── Agent Manager - Strands SDK integration
+│   ├── Memory Service - Long-term memory with mem0
+│   └── Utils - Data analysis and utilities
 │
-├── API Routes (Unified Endpoints)
-│   ├── Chat & Conversation
-│   ├── Memory Management
-│   ├── Budget Analysis
-│   ├── Portfolio Orchestration
-│   └── Agent State Management
+├── API Layer
+│   ├── Chat & Conversation endpoints
+│   ├── Memory Management endpoints
+│   ├── Budget Analysis endpoints
+│   └── System Health endpoints
 │
-└── Shared Infrastructure
-    ├── Configuration & Settings
-    ├── Pydantic Models
-    └── Utility Functions
+└── Configuration
+    ├── Environment settings (Google Gemini)
+    ├── Pydantic models
+    └── Application startup
 ```
 
-## 🏗️ Architecture
-
-```
-FastAPI Application
-├── Lab 1: Foundations
-│   ├── Basic Agent Creation
-│   ├── Custom Tools (@tool decorator)
-│   ├── Budget Calculation
-│   ├── Visualization Tools
-│   └── AWS Bedrock Guardrails
-│
-├── Lab 2: Memory Integration
-│   ├── Conversation History (Sliding Window)
-│   ├── Agent State Management
-│   ├── Request State
-│   ├── Long-term Memory (mem0)
-│   └── Personalized Responses
-│
-└── Lab 3: Multi-Agent Orchestration
-    ├── Stock Data Agent
-    ├── Growth Strategy Agent
-    ├── Diversified Strategy Agent
-    ├── Performance Calculator Agent
-    ├── Visualization Agent
-    ├── Validation Agent
-    └── Portfolio Orchestrator
-```
-
-## 🚀 Quick Start
+## [START] Quick Start
 
 ### Prerequisites
 
 - Python 3.13+
 - [uv](https://docs.astral.sh/uv/) package manager
-- AWS Account with Bedrock access
-- AWS credentials configured
+- Google Gemini API key (get one at [Google AI Studio](https://aistudio.google.com/app/apikey))
 
 ### Installation
 
@@ -125,10 +94,10 @@ PORT=8000
 
 ```bash
 # Development mode with auto-reload
-uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uv run fastapi dev app/main.py --host 0.0.0.0 --port 8000
 
 # Production mode
-uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+uv run fastapi run app/main.py --host 0.0.0.0 --port 8000 --workers 4
 ```
 
 Access the API:
@@ -164,108 +133,18 @@ Access the API:
 ### System
 - `GET /api/v1/health` - Health check and system status
 
-## 🎯 Usage Examples
+## [USAGE] Usage
 
-### Chat with Different Agent Types
+### Interactive API Documentation
 
-```bash
-# Financial advice agent
-curl -X POST "http://localhost:8000/api/v1/chat" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "message": "What are some good budgeting strategies?",
-    "user_id": "user123",
-    "session_id": "financial"
-  }'
+Once the application is running, visit the interactive documentation:
 
-# Memory-enabled agent
-curl -X POST "http://localhost:8000/api/v1/chat" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "message": "Remember that I want to save 30% for retirement",
-    "user_id": "user123",
-    "session_id": "memory"
-  }'
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
 
-# Budget analysis agent
-curl -X POST "http://localhost:8000/api/v1/chat" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "message": "Help me create a budget with $5000 monthly income",
-    "user_id": "user123",
-    "session_id": "budget"
-  }'
+The interactive documentation provides a clean interface to explore all available endpoints, view request/response schemas, and test the API directly in your browser.
 
-# Portfolio orchestrator
-curl -X POST "http://localhost:8000/api/v1/chat" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "message": "Create a diversified portfolio for moderate risk",
-    "user_id": "user123",
-    "session_id": "orchestrator"
-  }'
-```
-
-### Budget Analysis
-
-```bash
-# Calculate 50/30/20 budget
-curl -X POST "http://localhost:8000/api/v1/budget/calculate" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "monthly_income": 5000
-  }'
-
-# Create budget visualization
-curl -X POST "http://localhost:8000/api/v1/budget/chart" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "data": {
-      "Housing": 1500,
-      "Food": 600,
-      "Transportation": 400,
-      "Savings": 1000
-    },
-    "title": "Monthly Budget Breakdown"
-  }'
-```
-
-### Memory Operations
-
-```bash
-# Store user preferences
-curl -X POST "http://localhost:8000/api/v1/memory/store" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": "user123",
-    "content": "User prefers aggressive investment strategies with 70% stocks, 30% bonds"
-  }'
-
-# Retrieve relevant memories
-curl -X POST "http://localhost:8000/api/v1/memory/retrieve" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": "user123",
-    "query": "investment preferences",
-    "max_results": 3
-  }'
-```
-
-### Portfolio Orchestration
-
-```bash
-# Run complete portfolio analysis
-curl -X POST "http://localhost:8000/api/v1/portfolio/orchestrate" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "request": "Create an optimal portfolio for retirement with moderate risk tolerance"
-  }'
-
-# Get visualizations
-curl -X GET "http://localhost:8000/api/v1/portfolio/visualizations"
-```
-
-## 🏗️ Key Concepts
+## [CONCEPTS] Key Concepts
 - **Conversation History**: Managed by `SlidingWindowConversationManager`
 - **Agent State**: Key-value storage for user preferences
 - **Request State**: Per-request context
@@ -305,15 +184,14 @@ curl -X GET "http://localhost:8000/api/v1/portfolio/visualizations"
 - `GET /api/v1/lab3/visualizations` - Get cached visualizations
 - `POST /api/v1/lab3/validate` - Validate portfolio performance
 
-## 🛠️ Technology Stack
+## [TECH] Technology Stack
 
-- **Framework**: FastAPI 0.115.6
-- **AI SDK**: Strands Agents SDK
-- **AI Model**: AWS Bedrock (Claude 3.7 Sonnet)
-- **Memory**: mem0ai, FAISS, OpenSearch (optional)
+- **Framework**: FastAPI
+- **AI SDK**: Strands Agents SDK (v1.15.0+)
+- **AI Model**: Google Gemini (gemini-2.0-flash-exp)
+- **Memory**: mem0ai, FAISS (default), OpenSearch (optional)
 - **Data Analysis**: pandas, numpy
-- **Visualization**: matplotlib
-- **Financial Data**: yfinance
+- **Code Quality**: Ruff (linting and formatting)
 - **Python**: 3.13+
 - **Package Manager**: uv
 
@@ -325,47 +203,9 @@ Once the application is running, visit:
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 
-### Example Requests
+### Testing the API
 
-#### Lab 1: Basic Chat
-```bash
-curl -X POST "http://localhost:8000/api/v1/lab1/chat" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "message": "I make $6000 per month. Can you create a budget breakdown?"
-  }'
-```
-
-#### Lab 2: Store Memory
-```bash
-curl -X POST "http://localhost:8000/api/v1/memory/store" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": "user_123",
-    "content": "My monthly budget is $5000. I prefer to save 30%."
-  }'
-```
-
-#### Lab 2: Chat with Memory
-```bash
-curl -X POST "http://localhost:8000/api/v1/chat" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "message": "What are my savings goals?",
-    "user_id": "user_123"
-  }'
-```
-
-#### Lab 3: Portfolio Orchestration
-```bash
-curl -X POST "http://localhost:8000/api/v1/lab3/orchestrate" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "request": "Create an optimal investment portfolio using your multi-agent system",
-    "tickers": ["AAPL", "MSFT", "GOOGL", "AMZN"],
-    "investment_amount": 1000
-  }'
-```
+Use the interactive documentation at http://localhost:8000/docs to test all endpoints with a user-friendly interface.
 
 ## 🧪 Testing
 
@@ -391,72 +231,41 @@ strands/
 ├── app/
 │   ├── __init__.py
 │   ├── main.py                 # FastAPI application entry point
-│   ├── api/
+│   ├── api/                    # API route definitions
 │   │   ├── __init__.py
-│   │   └── routes.py           # API route definitions
+│   │   ├── system_routes.py    # Health check endpoints
+│   │   ├── chat_routes.py      # Chat endpoints
+│   │   ├── memory_routes.py    # Memory management endpoints
+│   │   └── budget_routes.py    # Budget analysis endpoints
 │   ├── config/
 │   │   ├── __init__.py
 │   │   └── settings.py         # Application settings
 │   ├── models/
 │   │   ├── __init__.py
-│   │   ├── schemas.py          # Lab 2 schemas
-│   │   └── lab1_schemas.py     # Lab 1 schemas
+│   │   ├── schemas.py          # Pydantic models
+│   │   ├── memory_schemas.py   # Memory-related models
+│   │   └── portfolio_schemas.py # Portfolio models
 │   └── services/
 │       ├── __init__.py
-│       ├── agent_service.py    # Lab 2 service
-│       ├── lab1_service.py     # Lab 1 service
-│       ├── lab3_service.py     # Lab 3 service
-│       └── lab3_utils.py       # Lab 3 utilities
-├── tests/                      # Test files
-├── docs/                       # Additional documentation
+│       ├── agent_manager.py    # Strands agent management
+│       ├── agent_service.py    # Agent orchestration
+│       ├── memory_service.py   # Memory operations
+│       └── utils.py            # Utility functions
 ├── .env.example                # Example environment variables
-├── pyproject.toml              # Project dependencies (uv)
-├── README.md                   # This file
-└── requirements.txt            # Legacy pip requirements
+├── pyproject.toml              # Project dependencies and configuration
+└── README.md                   # This file
 ```
 
-## 🔐 AWS Bedrock Guardrails (Lab 1)
+## [SECURITY] Security Considerations
 
-Lab 1 demonstrates how to integrate AWS Bedrock Guardrails for safety:
+This application includes several security features:
 
-### Creating a Guardrail
+- **Input Validation**: All API requests are validated using Pydantic models
+- **Error Handling**: Graceful error responses without exposing sensitive information
+- **Educational Purpose**: Clear disclaimers that this is not financial advice
+- **API Key Management**: Environment variables for secure credential handling
 
-```python
-import boto3
-
-bedrock_client = boto3.client('bedrock')
-
-response = bedrock_client.create_guardrail(
-    name='guardrail-no-investment-advice',
-    description='Prevents stock investment advice',
-    topicPolicyConfig={
-        'topicsConfig': [{
-            'name': 'Stock Investment Advice',
-            'definition': 'Providing personalized investment advice...',
-            'type': 'DENY'
-        }]
-    }
-)
-
-guardrail_id = response['guardrailId']
-```
-
-### Using with Strands Agent
-
-```python
-from strands import Agent
-from strands.models import BedrockModel
-
-model = BedrockModel(
-    model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
-    guardrail_id=guardrail_id,
-    guardrail_version="DRAFT"
-)
-
-agent = Agent(model=model, tools=[...])
-```
-
-## 💾 Memory Backends (Lab 2)
+## [MEMORY] Memory Backends
 
 Lab 2 supports three memory backends:
 
@@ -479,77 +288,41 @@ MEMORY_BACKEND=mem0_platform
 MEM0_API_KEY=your_mem0_api_key
 ```
 
-## 🤝 Multi-Agent Pattern (Lab 3)
+## [FEATURES] Key Features
 
-Lab 3 demonstrates the "agents as tools" pattern:
+### Agent Management
+- **Multiple Agent Types**: Basic, financial, memory-enabled, and budget analysis agents
+- **Custom Tools**: Specialized tools for budget calculations, data analysis, and memory operations
+- **Google Gemini Integration**: Modern AI model with natural language understanding
 
-```python
-# Create specialist agents
-stock_data_agent = create_stock_data_agent()
-growth_strategy_agent = create_growth_strategy_agent()
-diversified_strategy_agent = create_diversified_strategy_agent()
+### Memory System
+- **Short-term Memory**: Conversation history with sliding window management
+- **Long-term Memory**: Persistent storage using mem0 for user preferences and context
+- **Flexible Backends**: Support for FAISS (default), OpenSearch, or mem0 platform
 
-# Create orchestrator that uses specialists as tools
-orchestrator = Agent(
-    system_prompt="Coordinate specialist agents...",
-    tools=[
-        stock_data_agent,
-        growth_strategy_agent,
-        diversified_strategy_agent
-    ]
-)
+### Financial Analysis
+- **Budget Planning**: 50/30/20 budget calculations and recommendations
+- **Data Visualization**: Chart preparation for client-side rendering
+- **Educational Focus**: Clear disclaimers and non-advisory approach
 
-# Orchestrator automatically delegates to specialists
-result = orchestrator("Create an optimal portfolio")
-```
-
-## 🎓 Learning Path
-
-1. **Start with Lab 1**: Learn basic agent creation and custom tools
-2. **Progress to Lab 2**: Add memory capabilities for personalization
-3. **Master Lab 3**: Coordinate multiple specialist agents
-
-Each lab builds on concepts from the previous one, creating a comprehensive understanding of Strands Agents patterns.
-
-## 📝 Key Takeaways
-
-### From Lab 1:
-- Agent creation with AWS Bedrock
-- Custom tool development with `@tool`
-- System prompt engineering
-- Safety filters with Guardrails
-
-### From Lab 2:
-- Three types of short-term memory
-- Long-term memory with mem0
-- Conversation management patterns
-- User preference persistence
-
-### From Lab 3:
-- Multi-agent coordination patterns
-- Specialist agent design
-- Orchestrator implementation
-- Human-in-the-loop workflows
-- Real-world portfolio analysis
-
-## 🔗 Resources
+## [LINKS] Resources
 
 - [Strands Agents Documentation](https://strandsagents.ai/docs)
 - [Strands Agents SDK (Python)](https://github.com/strands-agents/sdk-python)
-- [Strands Agents Samples](https://github.com/strands-agents/samples)
-- [AWS Bedrock Documentation](https://docs.aws.amazon.com/bedrock/)
+- [Google AI Studio](https://aistudio.google.com/app/apikey) - Get your Gemini API key
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [uv Package Manager](https://docs.astral.sh/uv/)
 
-## 📄 License
+## [LICENSE] License
 
 This project is for educational purposes, based on the Strands Agents samples.
 
-## 🙏 Acknowledgments
+## [THANKS] Acknowledgments
 
 - Strands Agents team for the excellent SDK and samples
-- AWS for Bedrock AI services
+- Google for the Gemini AI models
 - FastAPI team for the amazing web framework
 
 ---
 
-**Built with ❤️ for learning Strands Agents patterns through practical examples**
+**Built for learning Strands Agents patterns with modern AI technology**
